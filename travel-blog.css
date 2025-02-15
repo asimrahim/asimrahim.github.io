@@ -59,23 +59,30 @@ p {
 
 /* Slideshow Background */
 .slideshow-container {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   z-index: -1;
   overflow: hidden;
 }
-.slide {
-  display: none;
-  width: 100%;
-  height: 100%;
-}
 .slide img {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   object-fit: cover;
+}
+.text-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+}
+#world-map {
+  margin-top: 100vh; /* Push map below the full-page slideshow */
+  background-color: #023459;
 }
 /* Fade animation for slides */
 .fade {
