@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>travelBlog</title>
+    <link href="travel-blog.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <!-- Navigation -->
+    <header id="nav">
+      <nav class="nav-bar">
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#world-map">Countries</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+    
+    <!-- Landing / Home Section with Slideshow -->
+  <section id="home" class="title">
+  <div class="slideshow-container">
+    <div class="slide fade">
+      <img src="images/brooklynbridgepark.jpg" alt="Slide 1">
+    </div>
+    <div class="slide fade">
+      <img src="images/giza.jpg" alt="Slide 2">
+    </div>
+    <div class="slide fade">
+      <img src="images/marbella.jpg" alt="Slide 3">
+    </div>
+    <div class="slide fade">
+      <img src="images/wharariki.jpg" alt="Slide 3">
+    </div>
+  </div>
+  <div class="text-overlay">
+    <h2>Asim Rahim</h2>
+    <p>A travel record, a global adventure.</p>
+    <div class="quote">
+      <blockquote class="willy-wonka">"Come with me, and you'll be, in a world of pure imagination"</blockquote>
+      <blockquote class="willy-wonka">- Willy Wonka</blockquote>
+    </div>
+  </div>
+  </section>
+    
+    <!-- World Map / Countries Section -->
+    <section id="world-map">
+      <!-- Existing SVG map code goes here -->
+      <!-- (Your SVG paths remain unchanged) -->
+    </section>
+    
+    <!-- Placeholder About Section -->
+    <section id="about" class="about">
+      <h2>About Me</h2>
+      <p>
+        Write about your travel experiences, your inspirations, and a little about
+        yourself here.
+      </p>
+    </section>
+    
+    <!-- Placeholder Contact Section -->
+    <section id="contact" class="contact">
+      <h2>Contact</h2>
+      <p>
+        Include your social media links, email, or a contact form so readers can reach you.
+      </p>
+    </section>
+    
+    <!-- Modal Container for Country Details -->
+    <div id="countryModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="countryName"></h2>
+        <div id="countryMedia" class="media-grid"></div>
+        <div id="countryCommentary"></div>
+      </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script>
+      // Slideshow Script (basic version – you might want to improve it)
+      let slideIndex = 0;
+      const slides = document.querySelectorAll('.slide');
+      
+      function showSlides() {
+        slides.forEach(slide => slide.style.display = 'none');
+        slideIndex++;
+        if (slideIndex > slides.length) {
+          slideIndex = 1;
+        }
+        slides[slideIndex - 1].style.display = 'block';
+        setTimeout(showSlides, 5000); // Change image every 5 seconds
+      }
+      
+      showSlides();
+      
+      // Country content data – update with your actual content
+      const countryContent = {
+        "AE": {
+          name: "United Arab Emirates",
+          media: ["dubai1.jpg", "dubai2.jpg"],
+          commentary: "My amazing experience in Dubai..."
+        },
+        "AU": {
+          name: "Australia",
+          media: ["sydney.jpg", "outback.jpg"],
+          commentary: "Adventures down under..."
+        }
+        // Add more countries as needed
+      };
+      
+      // Modal handling and zoom effect for country click
+      const modal = document.getElementById('countryModal');
+      const span = document.querySelector('.close');
+      
+      document.querySelectorAll('.travelled').forEach(country => {
+        country.addEventListener('click', function() {
+          // Zoom effect: add a temporary class
+          this.classList.add('zoomed');
+          setTimeout(() => { this.classList.remove('zoomed'); }, 300);
+          
+          const countryCode = this.id;
+          const content = countryContent[countryCode];
+          
+          if (content) {
+            document.getElementById('countryName').textContent = content.name;
+            document.getElementById('countryCommentary').textContent = content.commentary;
+            
+            // Populate media grid
+            const mediaGrid = document.getElementById('countryMedia');
+            mediaGrid.innerHTML = content.media.map(img => `
+              <img src="images/${img}" class="media-item" alt="${content.name}">
+            `).join('');
+            
+            modal.style.display = "block";
+          }
+        });
+      });
+      
+      // Close modal when clicking on the close button or outside the modal
+      span.onclick = () => modal.style.display = "none";
+      
+      window.onclick = (event) => {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+    </script>
+  </body>
+</html>
