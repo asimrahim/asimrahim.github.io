@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>travelBlog</title>
+    <link href="travel-blog.css" rel="stylesheet" type="text/css">
+    <style>
+      /* Styles for the D3 world map */
+      .country {
+        stroke: #fff;
+        stroke-width: 0.5px;
+        fill: #ccc;
+        transition: fill 0.3s;
+        cursor: pointer;
+      }
+      .country.travelled {
+        fill: steelblue;
+      }
+      .country.hovered {
+        fill: orange;
+      }
+      /* Optional zoom effect */
+      .zoomed {
+        transform: scale(1.05);
+        transform-origin: center;
+        transition: transform 0.3s;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <header id="nav">
+      <nav class="nav-bar">
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#world-map">Countries</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+    
+    <!-- Landing / Home Section with Slideshow -->
+    <section id="home" class="title">
+      <div class="slideshow-container">
+        <div class="slide fade">
+          <img src="images/brooklynbridgepark.jpg" alt="Slide 1">
+        </div>
+        <div class="slide fade">
+          <img src="images/giza.jpg" alt="Slide 2">
+        </div>
+        <div class="slide fade">
+          <img src="images/marbella.jpg" alt="Slide 3">
+        </div>
+        <div class="slide fade">
+          <img src="images/wharariki.jpg" alt="Slide 4">
+        </div>
+      </div>
+      <div class="text-overlay">
+        <h2>Asim Rahim</h2>
+        <p>A travel record, a global adventure.</p>
+        <div class="quote">
+          <blockquote class="willy-wonka">"Come with me, and you'll be, in a world of pure imagination"</blockquote>
+          <blockquote class="willy-wonka">- Willy Wonka</blockquote>
+        </div>
+      </div>
+    </section>
+    
+    <!-- World Map / Countries Section -->
+    <section id="world-map">
+      <!-- The SVG for the D3 world map is inserted here -->
+      <svg id="world-map-svg" width="960" height="600"></svg>
+    </section>
+    
+    <!-- Placeholder About Section -->
+    <section id="about" class="about">
+      <h2>About Me</h2>
+      <p>
+        Write about your travel experiences, your inspirations, and a little about
+        yourself here.
+      </p>
+    </section>
+    
+    <!-- Placeholder Contact Section -->
+    <section id="contact" class="contact">
+      <h2>Contact</h2>
+      <p>
+        Include your social media links, email, or a contact form so readers can reach you.
+      </p>
+    </section>
+    
+    <!-- Modal Container for Country Details -->
+    <div id="countryModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="countryName"></h2>
+        <div id="countryMedia" class="media-grid"></div>
+        <div id="countryCommentary"></div>
+      </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script>
+      // Slideshow Script
+      let slideIndex = 0;
+      const slides = document.querySelectorAll('.slide');
+      
+      function showSlides() {
+        slides.forEach(slide => slide.style.display = 'none');
+        slideIndex++;
+        if (slideIndex > slides.length) {
+          slideIndex = 1;
+        }
+        slides[slideIndex - 1].style.display = 'block';
+        setTimeout(showSlides, 5000); // Change image every 5 seconds
+      }
+      
+      showSlides();
+      
+      // Country content data – update with your actual content
+      const countryContent = {
+        "AE": {
+          name: "United Arab Emirates",
+          media: ["dubai1.jpg", "dubai2.jpg"],
+          commentary: "My amazing experience in Dubai..."
+        },
+        "AU": {
+          name: "Australia",
+          media: ["sydney.jpg", "outback.jpg"],
+          commentary: "Adventures down under..."
+        }
+        // Add more countries as needed
+      };
+      
+      // Modal handling
+      const modal = document.getElementById('countryModal');
+      const span = document.querySelector('.close');
+      
+      span.onclick = () => modal.style.display = "none";
+      window.onclick = (event) => {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+    </script>
+    
+    <!-- Include D3.js and TopoJSON -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    <script>
+      // D3.js code to render the interactive world map
+      
+      // List of travelled countries (ISO A3 codes)
+      const travelledCountries = ["USA", "CAN", "GBR", "FRA", "DEU", "JPN"];
+      
+      // Mapping from TopoJSON numeric id to ISO A3 country code.
+      // (These IDs correspond to the world-atlas data.)
+      const idToISO = {
+        "840": "USA",
+        "124": "CAN",
+        "826": "GBR",
+        "250": "FRA",
+        "276": "DEU",
+        "392": "JPN"
+        // Add additional mappings as needed
+      };
+      
+      const svg = d3.select("#world-map-svg");
+      const width = +svg.attr("width");
+      const height = +svg.attr("height");
+      
+      // Create a Mercator projection and corresponding path generator.
+      const projection = d3.geoMercator()
+        .scale(150)
+        .translate([width / 2, height / 1.5]);
+      
+      const path = d3.geoPath().projection(projection);
+      
+      // Load the TopoJSON data for world countries.
+      d3.json("https://unpkg.com/world-atlas@2.0.2/countries-110m.json").then(worldData => {
+        const countries = topojson.feature(worldData, worldData.objects.countries).features;
+        
+        svg.selectAll("path")
+          .data(countries)
+          .enter().append("path")
+            .attr("class", d => {
+              const iso = idToISO[d.id] || "";
+              return "country" + (travelledCountries.includes(iso) ? " travelled" : "");
+            })
+            .attr("d", path)
+            .on("mouseover", function(event, d) {
+              d3.select(this).classed("hovered", true);
+            })
+            .on("mouseout", function(event, d) {
+              d3.select(this).classed("hovered", false);
+            })
+            .on("click", function(event, d) {
+              // Add a zoom effect via a temporary CSS class.
+              d3.select(this).classed("zoomed", true);
+              setTimeout(() => d3.select(this).classed("zoomed", false), 300);
+              
+              // Get the ISO code and then country content
+              const iso = idToISO[d.id] || "";
+              const content = countryContent[iso];
+              if (content) {
+                document.getElementById('countryName').textContent = content.name;
+                document.getElementById('countryCommentary').textContent = content.commentary;
+                const mediaGrid = document.getElementById('countryMedia');
+                mediaGrid.innerHTML = content.media.map(img => `
+                  <img src="images/${img}" class="media-item" alt="${content.name}">
+                `).join('');
+                modal.style.display = "block";
+              }
+            });
+      });
+    </script>
+  </body>
+</html>
