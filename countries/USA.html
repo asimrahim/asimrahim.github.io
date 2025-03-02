@@ -6,9 +6,27 @@
     <link href="/travel-blog.css" rel="stylesheet" type="text/css">
     <style>
       /* Additional styles for a country page */
+      .back-button {
+        display: inline-block;
+        margin: 10px;
+        padding: 10px 15px;
+        background-color: #007BFF;
+        color: #fff;
+        text-decoration: none;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .back-button:hover {
+        background-color: #0056b3;
+      }
       .country-header {
         text-align: center;
         margin-top: 20px;
+      }
+      .media-grid {
+        text-align: center;
       }
       .media-grid img {
         max-width: 100%;
@@ -19,23 +37,32 @@
         max-width: 800px;
         margin: 20px auto;
         font-size: 1.2em;
+        line-height: 1.6;
       }
     </style>
   </head>
   <body>
     <header>
+      <!-- Back button to return to the world map -->
+      <button class="back-button" onclick="window.location.href='/index.html#world-map'">
+        Back to World Map
+      </button>
       <h1 class="country-header">United States of America</h1>
     </header>
+    
     <section class="media-grid">
-      <!-- Replace with actual images for USA -->
+      <!-- Replace these with your actual media images -->
       <img src="/images/brooklynbridgepark.jpg" alt="USA image 1">
+      <!-- More images as needed -->
     </section>
+    
     <section class="commentary">
       <p>
         New York City, United States...
       </p>
-      <!-- Additional text, links, and media -->
+      <!-- Add further details, stories, and links as desired -->
     </section>
+    
     <footer>
       <p>&copy; 2025 Asim Rahim</p>
     </footer>
