@@ -89,8 +89,8 @@
       </p>
     </section>
     
-    <!-- Modal Container for Country Details -->
-    <div id="countryModal" class="modal">
+    <!-- Modal Container for Country Details (optional if you plan to redirect) -->
+    <div id="countryModal" class="modal" style="display: none;">
       <div class="modal-content">
         <span class="close">&times;</span>
         <h2 id="countryName"></h2>
@@ -117,53 +117,23 @@
       
       showSlides();
       
-      // Country content data – update with your actual content
-      const countryContent = {
-        "AE": {
-          name: "United Arab Emirates",
-          media: ["dubai1.jpg", "dubai2.jpg"],
-          commentary: "My amazing experience in Dubai..."
-        },
-        "AU": {
-          name: "Australia",
-          media: ["sydney.jpg", "outback.jpg"],
-          commentary: "Adventures down under..."
-        }
-        // Add more countries as needed
-      };
-      
-      // Modal handling
+      // (Optional) Modal handling for countries without dedicated pages.
       const modal = document.getElementById('countryModal');
       const span = document.querySelector('.close');
-      
       span.onclick = () => modal.style.display = "none";
       window.onclick = (event) => {
         if (event.target == modal) {
           modal.style.display = "none";
         }
-      }
+      };
     </script>
     
     <!-- Include D3.js and TopoJSON -->
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
     <script>
-      // D3.js code to render the interactive world map
-      
       // List of travelled countries (ISO A3 codes)
       const travelledCountries = ["USA", "CAN", "GBR", "FRA", "DEU", "JPN"];
-      
-      // Mapping from TopoJSON numeric id to ISO A3 country code.
-      // (These IDs correspond to the world-atlas data.)
-      const idToISO = {
-        "840": "USA",
-        "124": "CAN",
-        "826": "GBR",
-        "250": "FRA",
-        "276": "DEU",
-        "392": "JPN"
-        // Add additional mappings as needed
-      };
       
       const svg = d3.select("#world-map-svg");
       const width = +svg.attr("width");
@@ -176,42 +146,37 @@
       
       const path = d3.geoPath().projection(projection);
       
-      // Load the TopoJSON data for world countries.
-      d3.json("https://unpkg.com/world-atlas@2.0.2/countries-110m.json").then(worldData => {
-        const countries = topojson.feature(worldData, worldData.objects.countries).features;
-        
-        svg.selectAll("path")
-          .data(countries)
-          .enter().append("path")
-            .attr("class", d => {
-              const iso = idToISO[d.id] || "";
-              return "country" + (travelledCountries.includes(iso) ? " travelled" : "");
-            })
-            .attr("d", path)
-            .on("mouseover", function(event, d) {
-              d3.select(this).classed("hovered", true);
-            })
-            .on("mouseout", function(event, d) {
-              d3.select(this).classed("hovered", false);
-            })
-            .on("click", function(event, d) {
-              // Add a zoom effect via a temporary CSS class.
-              d3.select(this).classed("zoomed", true);
-              setTimeout(() => d3.select(this).classed("zoomed", false), 300);
-              
-              // Get the ISO code and then country content
-              const iso = idToISO[d.id] || "";
-              const content = countryContent[iso];
-              if (content) {
-                document.getElementById('countryName').textContent = content.name;
-                document.getElementById('countryCommentary').textContent = content.commentary;
-                const mediaGrid = document.getElementById('countryMedia');
-                mediaGrid.innerHTML = content.media.map(img => `
-                  <img src="images/${img}" class="media-item" alt="${content.name}">
-                `).join('');
-                modal.style.display = "block";
-              }
-            });
+      // Load the mapping JSON (idToSlug.json) and then the TopoJSON world map data.
+      d3.json("idToSlug.json").then(idToSlug => {
+        d3.json("https://unpkg.com/world-atlas@2.0.2/countries-110m.json").then(worldData => {
+          const countries = topojson.feature(worldData, worldData.objects.countries).features;
+          
+          svg.selectAll("path")
+            .data(countries)
+            .enter().append("path")
+              .attr("class", d => {
+                const iso = idToSlug[d.id] || "";
+                return "country" + (travelledCountries.includes(iso) ? " travelled" : "");
+              })
+              .attr("d", path)
+              .on("mouseover", function(event, d) {
+                d3.select(this).classed("hovered", true);
+              })
+              .on("mouseout", function(event, d) {
+                d3.select(this).classed("hovered", false);
+              })
+              .on("click", function(event, d) {
+                // Apply a zoom effect.
+                d3.select(this).classed("zoomed", true);
+                setTimeout(() => d3.select(this).classed("zoomed", false), 300);
+                
+                const isoSlug = idToSlug[d.id];
+                if (isoSlug) {
+                  // Redirect to the dedicated country page.
+                  window.location.href = "/countries/" + isoSlug + ".html";
+                }
+              });
+        });
       });
     </script>
   </body>
